@@ -362,15 +362,20 @@ impl Session {
     }
 
     fn check_catalogue(attributes: &UserAttributes) {
+        //if let Some(account_type) = attributes.get("type") {
+        //    if account_type != "premium" {
+        //        error!("librespot does not support {account_type:?} accounts.");
+        //        info!("Please support Spotify and your artists and sign up for a premium account.");
+
+        //        // TODO: logout instead of exiting
+        //        exit(1);
+        //    }
+        //}
         if let Some(account_type) = attributes.get("type") {
             if account_type != "premium" {
-                error!("librespot does not support {account_type:?} accounts.");
-                info!("Please support Spotify and your artists and sign up for a premium account.");
-
-                // TODO: logout instead of exiting
-                exit(1);
+                warn!("Account type is '{:?}', some features may be limited", account_type);
             }
-        }
+        }        
     }
 
     pub fn send_packet(&self, cmd: PacketType, data: Vec<u8>) -> Result<(), Error> {
