@@ -772,7 +772,7 @@ impl SpClient {
 
     pub async fn get_audio_storage(&self, file_id: &FileId) -> SpClientResult {
         let endpoint = format!(
-            "/storage-resolve/files/audio/interactive/{}",
+            "/storage-resolve/files/audio/interactive/{}?product=0",
             file_id.to_base16()?
         );
         self.request(&Method::GET, &endpoint, None, None).await
