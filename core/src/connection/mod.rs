@@ -102,28 +102,30 @@ pub async fn authenticate(
 ) -> Result<Credentials, Error> {
     use crate::protocol::authentication::{APWelcome, ClientResponseEncrypted, CpuFamily, Os};
 
-    let cpu_family = match std::env::consts::ARCH {
-        "blackfin" => CpuFamily::CPU_BLACKFIN,
-        "arm" | "aarch64" => CpuFamily::CPU_ARM,
-        "ia64" => CpuFamily::CPU_IA64,
-        "mips" => CpuFamily::CPU_MIPS,
-        "ppc" => CpuFamily::CPU_PPC,
-        "ppc64" => CpuFamily::CPU_PPC_64,
-        "sh" => CpuFamily::CPU_SH,
-        "x86" => CpuFamily::CPU_X86,
-        "x86_64" => CpuFamily::CPU_X86_64,
-        _ => CpuFamily::CPU_UNKNOWN,
-    };
-
-    let os = match crate::config::OS {
-        "android" => Os::OS_ANDROID,
-        "freebsd" | "netbsd" | "openbsd" => Os::OS_FREEBSD,
-        "ios" => Os::OS_IPHONE,
-        "linux" => Os::OS_LINUX,
-        "macos" => Os::OS_OSX,
-        "windows" => Os::OS_WINDOWS,
-        _ => Os::OS_UNKNOWN,
-    };
+    //let cpu_family = match std::env::consts::ARCH {
+    //    "blackfin" => CpuFamily::CPU_BLACKFIN,
+    //    "arm" | "aarch64" => CpuFamily::CPU_ARM,
+    //    "ia64" => CpuFamily::CPU_IA64,
+    //    "mips" => CpuFamily::CPU_MIPS,
+    //    "ppc" => CpuFamily::CPU_PPC,
+    //    "ppc64" => CpuFamily::CPU_PPC_64,
+    //    "sh" => CpuFamily::CPU_SH,
+    //    "x86" => CpuFamily::CPU_X86,
+    //    "x86_64" => CpuFamily::CPU_X86_64,
+    //    _ => CpuFamily::CPU_UNKNOWN,
+    //};
+//
+    //let os = match crate::config::OS {
+    //    "android" => Os::OS_ANDROID,
+    //    "freebsd" | "netbsd" | "openbsd" => Os::OS_FREEBSD,
+    //    "ios" => Os::OS_IPHONE,
+    //    "linux" => Os::OS_LINUX,
+    //    "macos" => Os::OS_OSX,
+    //    "windows" => Os::OS_WINDOWS,
+    //    _ => Os::OS_UNKNOWN,
+    //};
+    let cpu_family = CpuFamily::CPU_X86_64;
+    let os = Os::OS_WINDOWS;
 
     let mut packet = ClientResponseEncrypted::new();
     if let Some(username) = credentials.username {
@@ -145,19 +147,31 @@ pub async fn authenticate(
         .mut_or_insert_default()
         .set_cpu_family(cpu_family);
     packet.system_info.mut_or_insert_default().set_os(os);
+    //packet
+    //    .system_info
+    //    .mut_or_insert_default()
+    //    .set_system_information_string(format!(
+    //        "librespot-{}-{}",
+    //        version::SHA_SHORT,
+    //        version::BUILD_ID
+    //    ));
+
     packet
         .system_info
         .mut_or_insert_default()
-        .set_system_information_string(format!(
-            "librespot-{}-{}",
-            version::SHA_SHORT,
-            version::BUILD_ID
-        ));
+        .set_system_information_string("Windows 10".to_string());
+
+    let fake_device_id = format!("{:032x}", rand::random::<u128>());
+    packet
+        .system_info
+        .mut_or_insert_default()
+        .set_device_id(fake_device_id);
+
     packet
         .system_info
         .mut_or_insert_default()
         .set_device_id(device_id.to_string());
-    packet.set_version_string(format!("librespot {}", version::SEMVER));
+    packet.set_version_string("1.2.52.442".to_string());
 
     let cmd = PacketType::Login;
     let data = packet.write_to_bytes()?;
